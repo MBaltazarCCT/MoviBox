@@ -4,6 +4,7 @@ const sql = require("mssql");
 const dotenv = require("dotenv");
 
 const authenticateToken = require("./authenticateToken.js");
+const authenticate = require("./authenticateOdoo.js");
 
 const app = express();
 app.use(express.json());
@@ -39,7 +40,7 @@ app.listen(8081, () => {
 });
 
 // Rutas para manejar las operaciones CRUD de clientes
-{
+/* {
   app.post("/agregar-cliente", authenticateToken, async (req, res) => {
     try {
       const pool = await poolPromise;
@@ -297,7 +298,7 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
 
 
 
-}
+} */
 
 // Rutas para manejar las operaciones CRUD de contenedores
 {
@@ -313,24 +314,28 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
     }
   });
 
-  app.delete("/eliminar-contenedor/:id_contenedor", async (req, res) => {
-    try {
-      await sql.connect(config);
-      const { id_contenedor } = req.params;
-      const request = new sql.Request();
-      await request
-        .input("id_contenedor", sql.Int, id_contenedor)
-        .query(
-          "DELETE FROM dbo.registro_contenedores WHERE id_contenedor = @id_contenedor"
-        );
-      res.json({ message: "Contenedor eliminado correctamente" });
-    } catch (err) {
-      console.error("Error al eliminar contenedor:", err);
-      res.status(500).json({ message: "Error al eliminar contenedor" });
+  app.delete(
+    "/api/contenedores/:id_contenedor",
+    authenticateToken,
+    async (req, res) => {
+      try {
+        await sql.connect(config);
+        const { id_contenedor } = req.params;
+        const request = new sql.Request();
+        await request
+          .input("id_contenedor", sql.Int, id_contenedor)
+          .query(
+            "DELETE FROM dbo.registro_contenedores WHERE id_contenedor = @id_contenedor"
+          );
+        res.json({ message: "Contenedor eliminado correctamente" });
+      } catch (err) {
+        console.error("Error al eliminar contenedor:", err);
+        res.status(500).json({ message: "Error al eliminar contenedor" });
+      }
     }
-  });
+  );
 
-  app.post("/agregar-contenedor", async (req, res) => {
+  app.post("/api/contenedores", authenticateToken, async (req, res) => {
     const {
       cantidad_contenedores,
       fecha_llegada,
@@ -342,8 +347,6 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
       user,
       acceso,
     } = req.body;
-
-    console.log(hora_llegada);
 
     const results = [];
 
@@ -407,48 +410,40 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
                           @numero_contenedor, @cliente, @estado, @carga, @color, @peso, @tamano, 
                           @ubicacion, @unidad_llegada)`);
 
-            const containerId = insertContenedor.recordset[0].id_contenedor;
+          const containerId = insertContenedor.recordset[0].id_contenedor;
 
-            // Insertar en registro_dmg
-            await transaction
-              .request()
-              .input("id_contenedor", sql.Int, containerId)
-              .input(
-                "num_contenedor",
-                sql.VarChar(50),
-                containerData.numero_contenedor
-              )
-              .input("acceso", sql.VarChar(50), acceso)
-              .input("fecha_inspeccion", sql.Date, fecha_llegada)
-              .input("hora_inspeccion", sql.VarChar(8), hora_llegada)
-              .input("dmg_frontal", sql.Text, containerData.dmg_frontal)
-              .input("obs_frontal", sql.Text, containerData.obs_frontal)
-              .input("dmg_trasero", sql.Text, containerData.dmg_trasera)
-              .input("obs_trasero", sql.Text, containerData.obs_trasera)
-              .input(
-                "dmg_lateral_d",
-                sql.Text,
-                containerData.dmg_lateral_derecha
-              )
-              .input(
-                "obs_lateral_d",
-                sql.Text,
-                containerData.obs_lateral_derecha
-              )
-              .input(
-                "dmg_lateral_i",
-                sql.Text,
-                containerData.dmg_lateral_izquierda
-              )
-              .input(
-                "obs_lateral_i",
-                sql.Text,
-                containerData.obs_lateral_izquierda
-              )
-              .input("dmg_candado", sql.Text, containerData.dmg_candado)
-              .input("obs_candado", sql.Text, containerData.obs_candado)
-              .input("num_candado", sql.VarChar(50), containerData.num_candado)
-              .query(`INSERT INTO dbo.registro_dmg 
+          // Insertar en registro_dmg
+          await transaction
+            .request()
+            .input("id_contenedor", sql.Int, containerId)
+            .input(
+              "num_contenedor",
+              sql.VarChar(50),
+              containerData.numero_contenedor
+            )
+            .input("acceso", sql.VarChar(50), acceso)
+            .input("fecha_inspeccion", sql.Date, fecha_llegada)
+            .input("hora_inspeccion", sql.VarChar(8), hora_llegada)
+            .input("dmg_frontal", sql.Text, containerData.dmg_frontal)
+            .input("obs_frontal", sql.Text, containerData.obs_frontal)
+            .input("dmg_trasero", sql.Text, containerData.dmg_trasera)
+            .input("obs_trasero", sql.Text, containerData.obs_trasera)
+            .input("dmg_lateral_d", sql.Text, containerData.dmg_lateral_derecha)
+            .input("obs_lateral_d", sql.Text, containerData.obs_lateral_derecha)
+            .input(
+              "dmg_lateral_i",
+              sql.Text,
+              containerData.dmg_lateral_izquierda
+            )
+            .input(
+              "obs_lateral_i",
+              sql.Text,
+              containerData.obs_lateral_izquierda
+            )
+            .input("dmg_candado", sql.Text, containerData.dmg_candado)
+            .input("obs_candado", sql.Text, containerData.obs_candado)
+            .input("num_candado", sql.VarChar(50), containerData.num_candado)
+            .query(`INSERT INTO dbo.registro_dmg 
                   (id_contenedor, num_contenedor, acceso, fecha_inspeccion, hora_inspeccion,
                    dmg_frontal, obs_frontal, dmg_trasero, obs_trasero, 
                    dmg_lateral_d, obs_lateral_d, dmg_lateral_i, obs_lateral_i, 
@@ -458,39 +453,38 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
                           @dmg_lateral_d, @obs_lateral_d, @dmg_lateral_i, @obs_lateral_i, 
                           @dmg_candado, @obs_candado, @num_candado)`);
 
-            // Insertar en registro_movimientos
-            await transaction
-              .request()
-              .input("id_contenedor", sql.Int, containerId)
-              .input(
-                "tipo_movimiento",
-                sql.VarChar(50),
-                containerData.tipo_movimiento
-              )
-              .input("lugar_origen", sql.VarChar(100), eco)
-              .input("lugar_fin", sql.VarChar(100), containerData.lugar_fin)
-              .input("solicitado_por", sql.VarChar(100), user)
-              .input("realizado_por", sql.VarChar(100), null)
-              .input(
-                "instrucciones_add",
-                sql.Text,
-                containerData.instrucciones_add
-              )
-              .input("comentarios", sql.Text, null)
-              .input("fecha_solicitud", sql.Date, fecha_llegada)
-              .input("hora_solicitud", sql.VarChar(8), hora_llegada)
-              .input("fecha_realizado", sql.Date, null)
-              .input("hora_realizado", sql.VarChar(8), null)
-              .input("duracion", sql.VarChar(8), null)
-              .input("estatus", sql.VarChar(50), estatus)
-              .query(`INSERT INTO dbo.registro_movimientos 
+          // Insertar en registro_movimientos
+          await transaction
+            .request()
+            .input("id_contenedor", sql.Int, containerId)
+            .input(
+              "tipo_movimiento",
+              sql.VarChar(50),
+              containerData.tipo_movimiento
+            )
+            .input("lugar_origen", sql.VarChar(100), eco)
+            .input("lugar_fin", sql.VarChar(100), containerData.lugar_fin)
+            .input("solicitado_por", sql.VarChar(100), user)
+            .input("realizado_por", sql.VarChar(100), null)
+            .input(
+              "instrucciones_add",
+              sql.Text,
+              containerData.instrucciones_add
+            )
+            .input("comentarios", sql.Text, null)
+            .input("fecha_solicitud", sql.Date, fecha_llegada)
+            .input("hora_solicitud", sql.VarChar(8), hora_llegada)
+            .input("fecha_realizado", sql.Date, null)
+            .input("hora_realizado", sql.VarChar(8), null)
+            .input("duracion", sql.VarChar(8), null)
+            .input("estatus", sql.VarChar(50), estatus)
+            .query(`INSERT INTO dbo.registro_movimientos 
                   (id_contenedor, tipo_movimiento, lugar_origen, lugar_fin, solicitado_por, 
                    realizado_por, instrucciones_add, comentarios, fecha_solicitud, 
                    hora_solicitud, fecha_realizado, hora_realizado, duracion, estatus)
                   VALUES (@id_contenedor, @tipo_movimiento, @lugar_origen, @lugar_fin, @solicitado_por, 
                           @realizado_por, @instrucciones_add, @comentarios, @fecha_solicitud, 
                           @hora_solicitud, @fecha_realizado, @hora_realizado, @duracion, @estatus)`);
-
 
           results.push({
             numero_contenedor: containerData.numero_contenedor,
@@ -517,14 +511,17 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
     }
   });
 
-  app.get("/contenedor/:id_contenedor", async (req, res) => {
-    try {
-      const { id_contenedor } = req.params;
-      const pool = await poolPromise;
+  app.get(
+    "/api/contenedores/:id_contenedor",
+    authenticateToken,
+    async (req, res) => {
+      try {
+        const { id_contenedor } = req.params;
+        const pool = await poolPromise;
 
-      const result = await pool
-        .request()
-        .input("id_contenedor", sql.Int, id_contenedor).query(`
+        const result = await pool
+          .request()
+          .input("id_contenedor", sql.Int, id_contenedor).query(`
         SELECT c.*, 
                d.acceso, d.dmg_frontal, d.obs_frontal, d.dmg_trasero, d.obs_trasero,
                d.dmg_lateral_d, d.obs_lateral_d, d.dmg_lateral_i, d.obs_lateral_i,
@@ -545,87 +542,88 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
         WHERE c.id_contenedor = @id_contenedor
       `);
 
-      const containerData = result.recordset;
+        const containerData = result.recordset;
 
-      if (!containerData || containerData.length === 0) {
-        return res.status(404).json({
+        if (!containerData || containerData.length === 0) {
+          return res.status(404).json({
+            success: false,
+            error: "Contenedor no encontrado",
+          });
+        }
+
+        return res.status(200).json(containerData[0]);
+      } catch (error) {
+        console.error("❌ Error al obtener contenedor:", error);
+        return res.status(500).json({
           success: false,
-          error: "Contenedor no encontrado",
+          error: error.message || "Error al obtener los datos del contenedor",
         });
       }
-
-      return res.status(200).json(containerData[0]);
-    } catch (error) {
-      console.error("❌ Error al obtener contenedor:", error);
-      return res.status(500).json({
-        success: false,
-        error: error.message || "Error al obtener los datos del contenedor",
-      });
     }
-  });
+  );
 
- app.put("/actualizar-contenedor/:id_contenedor", async (req, res) => {
-   const { id_contenedor } = req.params;
+  app.put("/actualizar-contenedor/:id_contenedor", async (req, res) => {
+    const { id_contenedor } = req.params;
 
-   const {
-     fecha_llegada,
-     hora_llegada,
-     transportista,
-     operador,
-     eco,
-     user,
-     acceso,
-     estatus,
-     // contenedor1
-     numero_contenedor1,
-     cliente1,
-     estado1,
-     carga1,
-     color1,
-     peso1,
-     tamano1,
-     // daño
-     dmg_frontal1,
-     obs_frontal1,
-     dmg_trasera1,
-     obs_trasera1,
-     dmg_lateral_derecha1,
-     obs_lateral_derecha1,
-     dmg_lateral_izquierda1,
-     obs_lateral_izquierda1,
-     dmg_candado1,
-     obs_candado1,
-     num_candado1,
-     // movimiento
-     tipo_movimiento1,
-     lugar_fin1,
-     instrucciones_add1,
-   } = req.body;
+    const {
+      fecha_llegada,
+      hora_llegada,
+      transportista,
+      operador,
+      eco,
+      user,
+      acceso,
+      estatus,
+      // contenedor1
+      numero_contenedor1,
+      cliente1,
+      estado1,
+      carga1,
+      color1,
+      peso1,
+      tamano1,
+      // daño
+      dmg_frontal1,
+      obs_frontal1,
+      dmg_trasera1,
+      obs_trasera1,
+      dmg_lateral_derecha1,
+      obs_lateral_derecha1,
+      dmg_lateral_izquierda1,
+      obs_lateral_izquierda1,
+      dmg_candado1,
+      obs_candado1,
+      num_candado1,
+      // movimiento
+      tipo_movimiento1,
+      lugar_fin1,
+      instrucciones_add1,
+    } = req.body;
 
-   try {
-     const pool = await poolPromise;
-     const transaction = new sql.Transaction(pool);
+    try {
+      const pool = await poolPromise;
+      const transaction = new sql.Transaction(pool);
 
-     await transaction.begin();
+      await transaction.begin();
 
-     try {
-       // 1. Actualizar registro_contenedores
-       await transaction
-         .request()
-         .input("id_contenedor", sql.Int, id_contenedor)
-         .input("fecha_llegada", sql.Date, fecha_llegada)
-         .input("hora_llegada", sql.VarChar(8), hora_llegada)
-         .input("transportista", sql.VarChar(100), transportista)
-         .input("operador", sql.VarChar(100), operador)
-         .input("numero_contenedor", sql.VarChar(50), numero_contenedor1)
-         .input("cliente", sql.VarChar(100), cliente1)
-         .input("estado", sql.VarChar(50), estado1)
-         .input("carga", sql.VarChar(50), carga1)
-         .input("color", sql.VarChar(50), color1)
-         .input("peso", sql.VarChar(50), peso1)
-         .input("tamano", sql.VarChar(50), tamano1)
-         .input("eco", sql.VarChar(100), eco)
-         .query(`UPDATE dbo.registro_contenedores
+      try {
+        // 1. Actualizar registro_contenedores
+        await transaction
+          .request()
+          .input("id_contenedor", sql.Int, id_contenedor)
+          .input("fecha_llegada", sql.Date, fecha_llegada)
+          .input("hora_llegada", sql.VarChar(8), hora_llegada)
+          .input("transportista", sql.VarChar(100), transportista)
+          .input("operador", sql.VarChar(100), operador)
+          .input("numero_contenedor", sql.VarChar(50), numero_contenedor1)
+          .input("cliente", sql.VarChar(100), cliente1)
+          .input("estado", sql.VarChar(50), estado1)
+          .input("carga", sql.VarChar(50), carga1)
+          .input("color", sql.VarChar(50), color1)
+          .input("peso", sql.VarChar(50), peso1)
+          .input("tamano", sql.VarChar(50), tamano1)
+          .input("eco", sql.VarChar(100), eco)
+          .query(`UPDATE dbo.registro_contenedores
                 SET fecha_llegada = @fecha_llegada,
                     hora_llegada = @hora_llegada,
                     transportista = @transportista,
@@ -641,26 +639,26 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
                     unidad_llegada = @eco
                 WHERE id_contenedor = @id_contenedor`);
 
-       // 2. Actualizar registro_dmg
-       await transaction
-         .request()
-         .input("id_contenedor", sql.Int, id_contenedor)
-         .input("numero_contenedor", sql.VarChar(50), numero_contenedor1)
-         .input("acceso", sql.VarChar(50), acceso)
-         .input("fecha_inspeccion", sql.Date, fecha_llegada)
-         .input("hora_inspeccion", sql.VarChar(8), hora_llegada)
-         .input("dmg_frontal", sql.Text, dmg_frontal1)
-         .input("obs_frontal", sql.Text, obs_frontal1)
-         .input("dmg_trasero", sql.Text, dmg_trasera1)
-         .input("obs_trasero", sql.Text, obs_trasera1)
-         .input("dmg_lateral_d", sql.Text, dmg_lateral_derecha1)
-         .input("obs_lateral_d", sql.Text, obs_lateral_derecha1)
-         .input("dmg_lateral_i", sql.Text, dmg_lateral_izquierda1)
-         .input("obs_lateral_i", sql.Text, obs_lateral_izquierda1)
-         .input("dmg_candado", sql.Text, dmg_candado1)
-         .input("obs_candado", sql.Text, obs_candado1)
-         .input("num_candado", sql.VarChar(50), num_candado1)
-         .query(`UPDATE dbo.registro_dmg
+        // 2. Actualizar registro_dmg
+        await transaction
+          .request()
+          .input("id_contenedor", sql.Int, id_contenedor)
+          .input("numero_contenedor", sql.VarChar(50), numero_contenedor1)
+          .input("acceso", sql.VarChar(50), acceso)
+          .input("fecha_inspeccion", sql.Date, fecha_llegada)
+          .input("hora_inspeccion", sql.VarChar(8), hora_llegada)
+          .input("dmg_frontal", sql.Text, dmg_frontal1)
+          .input("obs_frontal", sql.Text, obs_frontal1)
+          .input("dmg_trasero", sql.Text, dmg_trasera1)
+          .input("obs_trasero", sql.Text, obs_trasera1)
+          .input("dmg_lateral_d", sql.Text, dmg_lateral_derecha1)
+          .input("obs_lateral_d", sql.Text, obs_lateral_derecha1)
+          .input("dmg_lateral_i", sql.Text, dmg_lateral_izquierda1)
+          .input("obs_lateral_i", sql.Text, obs_lateral_izquierda1)
+          .input("dmg_candado", sql.Text, dmg_candado1)
+          .input("obs_candado", sql.Text, obs_candado1)
+          .input("num_candado", sql.VarChar(50), num_candado1)
+          .query(`UPDATE dbo.registro_dmg
                 SET num_contenedor = @numero_contenedor,
                     acceso = @acceso,
                     fecha_inspeccion = @fecha_inspeccion,
@@ -678,19 +676,19 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
                     num_candado = @num_candado
                 WHERE id_contenedor = @id_contenedor`);
 
-       // 3. Actualizar registro_movimientos
-       await transaction
-         .request()
-         .input("id_contenedor", sql.Int, id_contenedor)
-         .input("tipo_movimiento", sql.VarChar(50), tipo_movimiento1)
-         .input("lugar_origen", sql.VarChar(100), eco)
-         .input("lugar_fin", sql.VarChar(100), lugar_fin1)
-         .input("solicitado_por", sql.VarChar(100), user)
-         .input("instrucciones_add", sql.Text, instrucciones_add1)
-         .input("fecha_solicitud", sql.Date, fecha_llegada)
-         .input("hora_solicitud", sql.VarChar(8), hora_llegada)
-         .input("estatus", sql.VarChar(50), estatus)
-         .query(`UPDATE dbo.registro_movimientos
+        // 3. Actualizar registro_movimientos
+        await transaction
+          .request()
+          .input("id_contenedor", sql.Int, id_contenedor)
+          .input("tipo_movimiento", sql.VarChar(50), tipo_movimiento1)
+          .input("lugar_origen", sql.VarChar(100), eco)
+          .input("lugar_fin", sql.VarChar(100), lugar_fin1)
+          .input("solicitado_por", sql.VarChar(100), user)
+          .input("instrucciones_add", sql.Text, instrucciones_add1)
+          .input("fecha_solicitud", sql.Date, fecha_llegada)
+          .input("hora_solicitud", sql.VarChar(8), hora_llegada)
+          .input("estatus", sql.VarChar(50), estatus)
+          .query(`UPDATE dbo.registro_movimientos
                 SET tipo_movimiento = @tipo_movimiento,
                     lugar_origen = @lugar_origen,
                     lugar_fin = @lugar_fin,
@@ -701,36 +699,28 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
                     estatus = @estatus
                 WHERE id_contenedor = @id_contenedor`);
 
-       await transaction.commit();
+        await transaction.commit();
 
-       res.status(200).json({
-         success: true,
-         message: `Contenedor ${numero_contenedor1} actualizado correctamente.`,
-       });
-     } catch (err) {
-       await transaction.rollback();
-       throw err;
-     }
-   } catch (error) {
-     console.error("❌ Error en /actualizar-contenedor:", error);
-     res.status(500).json({
-       success: false,
-       error: error.message,
-     });
-   }
- });
-
-
-
-
-
-
-
-
+        res.status(200).json({
+          success: true,
+          message: `Contenedor ${numero_contenedor1} actualizado correctamente.`,
+        });
+      } catch (err) {
+        await transaction.rollback();
+        throw err;
+      }
+    } catch (error) {
+      console.error("❌ Error en /actualizar-contenedor:", error);
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  });
 }
 
 // Rutas para manejar las operaciones CRUD de movimientos
-{
+/* {
   //contenedores en patio para formulario de nuevo movimiento
   app.get("/contenedores-ubicacion", async (req, res) => {
     try {
@@ -890,8 +880,7 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
 
 
 });
-} 
-
+}  */
 
 //manejar roles de usuarios
 
@@ -900,12 +889,10 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
     try {
       const pool = await poolPromise;
       const request = new sql.Request(pool);
-      
-      const {
-        email
-      } = req.query
 
-      console.log("email pasado al backend",email);
+      const { email } = req.query;
+
+      console.log("email pasado al backend", email);
 
       const query = `SELECT [rol] FROM dbo.registro_usuarios WHERE email = @email`;
       request.input("email", sql.VarChar, email);
@@ -915,13 +902,366 @@ const result = await pool.request().query("SELECT * FROM dbo.registro_clientes")
         return null;
       }
 
-
-
       res.json(result.recordset);
     } catch (err) {
       console.error("Error al obtener roles:", err);
       res.status(500).json({ message: "Error al obtener roles" });
     }
   });
+}
+const db = process.env.DB_ODOO;
+const login = process.env.LOGIN_ODOO;
+const PASSWORD_ODOO = process.env.PASSWORD_ODOO;
+const odooUrl = process.env.ODOO_URL;
+
+//odoo ap call
+{
+  app.post("/api/empleados", authenticateToken, async (req, res) => {
+    try {
+      const uid = await authenticate();
+
+      const searchBody = {
+        jsonrpc: "2.0",
+        method: "call",
+        id: new Date().getTime(),
+        params: {
+          service: "object",
+          method: "execute_kw",
+          args: [
+            process.env.DB_ODOO,
+            uid,
+            process.env.PASSWORD_ODOO,
+            "hr.employee", // Modelo
+            "search_read", // Método
+            [[["job_id", "in", [114, 447, 454, 113]]], ["name"]], // filtros y
+          ],
+        },
+      };
+
+      const response = await fetch(odooUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(searchBody),
+      });
+
+      const data = await response.json();
+      console.log("Data from Odoo:", data);
+      res.json(data.result);
+    } catch (error) {
+      console.error("Error al obtener empleados:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  });
+
+  app.post("/api/empleados/foto", async (req, res) => {
+    const { name } = req.body;
+    try {
+      const uid = await authenticate();
+
+      const searchBody = {
+        jsonrpc: "2.0",
+        method: "call",
+        id: new Date().getTime(),
+        params: {
+          service: "object",
+          method: "execute_kw",
+          args: [
+            process.env.DB_ODOO,
+            uid,
+            process.env.PASSWORD_ODOO,
+            "hr.employee", // Modelo
+            "search_read", // Método
+            [[["name", "=", [name]]], ["avatar_128"]], // filtros y
+          ],
+        },
+      };
+
+      const response = await fetch(odooUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(searchBody),
+      });
+
+      console.log("Response from Odoo:", response.status, response.statusText);
+
+      const data = await response.json();
+      console.log("Data from Odoo:", data);
+      res.json(data.result);
+    } catch (error) {
+      console.error("Error al obtener empleados:", error);
+      res.status(500).json({ error: "Error interno del servidor" });
+    }
+  });
+}
+
+//clientes nuevo
+{
+  app.get("/api/clientes/nombres", authenticateToken, async (req, res) => {
+    try {
+      const pool = await poolPromise;
+
+      const result = await pool.request().query(`
+      SELECT 
+        RTRIM(
+          ISNULL(nombre, '') + ' ' +
+          ISNULL(apellido_paterno, '') + ' ' +
+          ISNULL(apellido_materno, '') + ' ' +
+          ISNULL(razon_social, '') + ' ' +
+          ISNULL(razon_comercial, '')
+        ) AS CLIENTE
+      FROM dbo.registro_clientes
+    `);
+
+      res.status(200).json(result.recordset);
+    } catch (error) {
+      console.error("❌ Error al obtener nombres de clientes:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/clientes", authenticateToken, async (req, res) => {
+    try {
+      const pool = await poolPromise;
+      const result = await pool
+        .request()
+        .query("SELECT * FROM dbo.registro_clientes");
+      res.json(result.recordset);
+    } catch (err) {
+      console.error("Error al obtener clientes:", err);
+      res.status(500).json({ message: "Error al obtener clientes" });
+    }
+  });
+
+  app.delete("/api/clientes/:id_cliente", authenticateToken, async (req, res) => {
+    try {
+      const id_cliente = req.params.id_cliente;
+      const pool = await poolPromise;
+      const result = await pool
+
+        .request()
+        .input("id_cliente", sql.Int, id_cliente)
+        .query(
+          "DELETE FROM dbo.registro_clientes WHERE id_cliente = @id_cliente"
+        );
+
+      if (result.rowsAffected[0] === 0) {
+        return res.status(404).json({ message: "Cliente no encontrado" });
+      }
+
+
+
+      res.json({ message: "Cliente eliminado correctamente" });
+    } catch (err) {
+      console.error("Error al eliminar cliente:", err);
+      res.status(500).json({ message: "Error al eliminar cliente" });
+    }
+  });
+
+  app.get("/api/clientes/:id_cliente", authenticateToken, async (req, res) => {
+    try {
+      const { id_cliente } = req.params;
+      const pool = await poolPromise;
+
+      const result = await pool
+        .request()
+        .input("id_cliente", sql.Int, id_cliente)
+        .query(
+          `SELECT * FROM dbo.registro_clientes WHERE id_cliente = @id_cliente`
+        );
+
+      const clienteData = result.recordset;
+
+      if (!clienteData || clienteData.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: "Cliente no encontrado",
+        });
+      }
+
+      return res.status(200).json(clienteData[0]);
+    } catch (error) {
+      console.error("❌ Error al obtener cliente:", error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || "Error al obtener los datos del cliente",
+      });
+    }
+  });
+
+  app.put("/api/clientes/:id_cliente", authenticateToken, async (req, res) => {
+    const { id_cliente } = req.params;
+    const request = new sql.Request();
+    const {
+      tipo_persona,
+      nombre,
+      apellido_paterno,
+      apellido_materno,
+      representante_legal,
+      rfc_nit,
+      telefono,
+      transportista,
+      credito_disponible,
+      estado,
+      municipio,
+      ciudad,
+      colonia,
+      calle,
+      numero,
+      referencia,
+      codigo_postal,
+      razon_social,
+      razon_comercial,
+      email1,
+      email2,
+      email3,
+      email4,
+    } = req.body;
+
+    try {
+      const pool = await poolPromise;
+
+      const request = await pool
+        .request()
+        .input("id_cliente", sql.Int, id_cliente)
+        .input("tipo_persona", sql.VarChar, tipo_persona)
+        .input("nombre", sql.VarChar, nombre)
+        .input("apellido_paterno", sql.VarChar, apellido_paterno)
+        .input("apellido_materno", sql.VarChar, apellido_materno)
+        .input("representante_legal", sql.VarChar, representante_legal)
+        .input("rfc_nit", sql.VarChar, rfc_nit)
+        .input("telefono", sql.VarChar, telefono)
+        .input("transportista", sql.VarChar, transportista)
+        .input("credito_disponible", sql.Decimal(18, 2), credito_disponible)
+        .input("estado", sql.VarChar, estado)
+        .input("municipio", sql.VarChar, municipio)
+        .input("ciudad", sql.VarChar, ciudad)
+        .input("colonia", sql.VarChar, colonia)
+        .input("calle", sql.VarChar, calle)
+        .input("numero", sql.VarChar, numero)
+        .input("referencia", sql.VarChar, referencia)
+        .input("codigo_postal", sql.VarChar, codigo_postal)
+        .input("razon_social", sql.VarChar, razon_social)
+        .input("razon_comercial", sql.VarChar, razon_comercial)
+        .input("email1", sql.VarChar, email1)
+        .input("email2", sql.VarChar, email2)
+        .input("email3", sql.VarChar, email3)
+        .input("email4", sql.VarChar, email4);
+
+      await request.query(`
+          UPDATE dbo.registro_clientes
+          SET tipo_persona = @tipo_persona,
+              nombre = @nombre,
+              apellido_paterno = @apellido_paterno,
+              apellido_materno = @apellido_materno,
+              representante_legal = @representante_legal,
+              rfc_nit = @rfc_nit,
+              telefono = @telefono,
+              transportista = @transportista,
+              credito_disponible = @credito_disponible,
+              estado = @estado,
+              municipio = @municipio,
+              ciudad = @ciudad,
+              colonia = @colonia,
+              calle = @calle,
+              numero = @numero,
+              referencia = @referencia,
+              codigo_postal = @codigo_postal,
+              razon_social = @razon_social,
+              razon_comercial = @razon_comercial,
+              email1 = @email1,
+              email2 = @email2,
+              email3 = @email3,
+              email4 = @email4
+          WHERE id_cliente = @id_cliente
+        `);
+    } catch (err) {
+      console.error("Error al actualizar cliente:", err);
+      res.status(500).json({ message: "Error al actualizar cliente" });
+    }
+    res.json({ message: "Cliente actualizado correctamente" });
+  });
+
+  app.post("/clientes", authenticateToken, async (req, res) => {
+    try {
+      const pool = await poolPromise;
+      const request = new sql.Request(pool);
+
+      const {
+        tipo_persona,
+        nombre,
+        apellido_paterno,
+        apellido_materno,
+        representante_legal,
+        rfc_nit,
+        telefono,
+        transportista,
+        credito_disponible,
+        estado,
+        municipio,
+        ciudad,
+        colonia,
+        calle,
+        numero,
+        referencia,
+        codigo_postal,
+        razon_social,
+        razon_comercial,
+        email1,
+        email2,
+        email3,
+        email4,
+      } = req.body;
+
+      const query = `
+      INSERT INTO dbo.registro_clientes (
+        tipo_persona, nombre, apellido_paterno, apellido_materno,
+        representante_legal, rfc_nit, telefono, transportista, credito_disponible,
+        estado, municipio, ciudad, colonia, calle, numero, referencia, codigo_postal,
+        razon_social, razon_comercial, email1, email2, email3, email4
+      ) VALUES (
+        @tipo_persona, @nombre, @apellido_paterno, @apellido_materno,
+        @representante_legal, @rfc_nit, @telefono, @transportista, @credito_disponible,
+        @estado, @municipio, @ciudad, @colonia, @calle, @numero, @referencia, @codigo_postal,
+        @razon_social, @razon_comercial, @email1, @email2, @email3, @email4
+      )
+    `;
+
+      request
+        .input("tipo_persona", sql.VarChar, tipo_persona)
+        .input("nombre", sql.VarChar, nombre)
+        .input("apellido_paterno", sql.VarChar, apellido_paterno)
+        .input("apellido_materno", sql.VarChar, apellido_materno)
+        .input("representante_legal", sql.VarChar, representante_legal)
+        .input("rfc_nit", sql.VarChar, rfc_nit)
+        .input("telefono", sql.VarChar, telefono)
+        .input("transportista", sql.VarChar, transportista)
+        .input("credito_disponible", sql.Decimal(18, 2), credito_disponible)
+        .input("estado", sql.VarChar, estado)
+        .input("municipio", sql.VarChar, municipio)
+        .input("ciudad", sql.VarChar, ciudad)
+        .input("colonia", sql.VarChar, colonia)
+        .input("calle", sql.VarChar, calle)
+        .input("numero", sql.VarChar, numero)
+        .input("referencia", sql.VarChar, referencia)
+        .input("codigo_postal", sql.VarChar, codigo_postal)
+        .input("razon_social", sql.VarChar, razon_social)
+        .input("razon_comercial", sql.VarChar, razon_comercial)
+        .input("email1", sql.VarChar, email1)
+        .input("email2", sql.VarChar, email2)
+        .input("email3", sql.VarChar, email3)
+        .input("email4", sql.VarChar, email4);
+
+      await request.query(query);
+
+      res.json({ success: true, message: "Cliente agregado correctamente" });
+    } catch (err) {
+      console.error("Error al agregar cliente:", err);
+      res
+        .status(500)
+        .json({ success: false, message: "Error al agregar cliente" });
+    }
+  });
+
+
 
 }
