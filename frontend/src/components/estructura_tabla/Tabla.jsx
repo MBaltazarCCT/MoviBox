@@ -14,7 +14,8 @@ import {
   getFacetedUniqueValues,
 
 } from "@tanstack/react-table";
-import Filters from "./Filters";
+import Filtros from "./Filtros";
+import "./listaStyles.css";
 
 function Tabla(props) {
   const [columnFilters, setColumnFilters] = useState([]);
@@ -77,7 +78,7 @@ function Tabla(props) {
                 <th key={header.id} style={{ width: `${header.getSize()}px` }}>
                   {header.column.getCanFilter() ? (
                     <div>
-                      <Filters column={header.column} />
+                      <Filtros column={header.column} />
                     </div>
                   ) : (
                     header.column.columnDef.header

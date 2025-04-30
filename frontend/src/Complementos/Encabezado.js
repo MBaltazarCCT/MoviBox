@@ -5,9 +5,9 @@ import UserImageFetcher from "./UserImageFetcher";
 
 import "./BarraLateralStyle.css";
 
-function Encabezado({userRol, }) {
+function Encabezado({ userRol }) {
   const [show, setShow] = useState(false);
-console.log("rol: ", userRol.rol);
+  console.log("rol: ", userRol.rol);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   return (
@@ -18,10 +18,7 @@ console.log("rol: ", userRol.rol);
         expand="md"
         className="p-0 shadow sticky-top"
       >
-        <Navbar.Brand
-          href="#"
-          className="col-md-3 col-lg-2 me-0 px-4"
-        >
+        <Navbar.Brand href="#" className="col-md-3 col-lg-2 me-0 px-4">
           <Image
             src={logo}
             alt="Company Logo"
@@ -34,7 +31,7 @@ console.log("rol: ", userRol.rol);
           />
         </Navbar.Brand>
 
-            {userRol}
+        {userRol}
 
         <Navbar.Toggle
           aria-controls="sidebarMenu"
@@ -44,8 +41,6 @@ console.log("rol: ", userRol.rol);
         <Nav className="ms-auto">
           <UserImageFetcher />
         </Nav>
-
-
       </Navbar>
     </>
   );

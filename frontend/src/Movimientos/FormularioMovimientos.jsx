@@ -11,7 +11,7 @@ import {
   Modal,
   Spinner,
 } from "react-bootstrap";
-import "../Contenedores/formulario/NuevoContenedorStyle.css";
+import "../former_files/Contenedores/formulario/NuevoContenedorStyle.css";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import axios from "axios";
 import { DropdownList } from "react-widgets";
@@ -213,57 +213,55 @@ function FormularioMovimientos() {
                   </Form.Group>
                 </Col>
               </Row>
-
-
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>
         <Navbar
-                    bg="light"
-                    variant="light"
-                    className="sticky-bottom p-0 shadow border-top"
-                    style={{
-                      position: "fixed",
-                      bottom: "0",
-                      left: "0",
-                      width: "100vw",
-                      zIndex: "1",
-                      height: "60px",
-                    }}
-                  >
-                    <Col md={2}></Col>
-        
-                    <Col md={10}>
-                      <div
-                        className="d-block justify-content-between align-items-center m-auto"
-                        style={{ width: "70%", maxWidth: "900px" }}
-                      >
-                        <div className="d-flex align-items-end justify-content-end">
-                          <Button
-                            variant="primary"
-                            type="submit"
-                            style={{
-                              background: "#162759",
-                              height: "40px",
-                              borderColor: "#162759",
-                            }}
-                          >
-                            Generar movimiento
-                            {isSubmitting && (
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                                className="ms-2"
-                              />
-                            )}
-                          </Button>{" "}
-                        </div>
-                      </div>
-                    </Col>
-                  </Navbar>
+          bg="light"
+          variant="light"
+          className="sticky-bottom p-0 shadow border-top"
+          style={{
+            position: "fixed",
+            bottom: "0",
+            left: "0",
+            width: "100vw",
+            zIndex: "1",
+            height: "60px",
+          }}
+        >
+          <Col md={2}></Col>
+
+          <Col md={10}>
+            <div
+              className="d-block justify-content-between align-items-center m-auto"
+              style={{ width: "70%", maxWidth: "900px" }}
+            >
+              <div className="d-flex align-items-end justify-content-end">
+                <Button
+                  variant="primary"
+                  type="submit"
+                  style={{
+                    background: "#162759",
+                    height: "40px",
+                    borderColor: "#162759",
+                  }}
+                >
+                  Generar movimiento
+                  {isSubmitting && (
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="ms-2"
+                    />
+                  )}
+                </Button>{" "}
+              </div>
+            </div>
+          </Col>
+        </Navbar>
       </Form>
       {succesModalShow && (
         <Modal_Succes

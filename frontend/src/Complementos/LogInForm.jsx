@@ -30,10 +30,9 @@ function LogInForm({ setUserRol }) {
 
       if (res.data[0].rol) {
         instance.setActiveAccount(account);
-        setUserRol(!res.data[0].rol);
+        setUserRol(res.data[0].rol);
       } else {
         await instance.logout({
-          account: instance.getActiveAccount(),
           postLogoutRedirectUri: "/", // opcional
         });
       }
