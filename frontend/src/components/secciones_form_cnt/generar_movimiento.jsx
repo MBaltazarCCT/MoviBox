@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CampoRequerido from "../../utils/CampoRequerido";
 import { reglasCnt, tipos_daños } from "../../utils/validación_contenedores";
-import Dropdownlist from "react-widgets/Dropdownlist";
+import DropdownList from "react-widgets/DropdownList";
 import { useFormContext, Controller } from "react-hook-form";
 import { Form, Row, Col, Button, Image } from "react-bootstrap";
 
@@ -26,7 +26,7 @@ function Generar_movimiento({ index }) {
                 rules={reglasCnt.requerido}
                 render={({ field, fieldState: { error, invalid } }) => (
                   <>
-                    <Dropdownlist
+                    <DropdownList
                       {...field}
                       data={[
                         "Camión a piso",
@@ -55,7 +55,7 @@ function Generar_movimiento({ index }) {
                 rules={reglasCnt.requerido}
                 render={({ field, fieldState: { error, invalid } }) => (
                   <>
-                    <Dropdownlist
+                    <DropdownList
                       {...field}
                       data={["lugar 1", "lugar 2", "lugar 3"]}
                       defaultValue="Seleccione un destino"
