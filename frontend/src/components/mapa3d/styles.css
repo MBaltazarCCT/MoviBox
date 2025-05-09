@@ -1,0 +1,36 @@
+.datos_cnt {
+  position: absolute;
+  z-index: 1;
+  background: rgba(14, 0, 95, 0.9);
+  padding: 16px;
+  color: #fff;
+  width: 200px;
+  border-radius: 6px;
+  margin-inline-start: auto;
+  left: 0;
+  right: 0;
+  top:70px;
+}
+
+.datos_cnt ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.datos_cnt li {
+  margin-bottom: 6px;
+}
+
+.datos_cnt li:last-child {
+  margin-bottom: 0;
+}
+
+.contenedor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height:calc(100vh);
+  min-width: 60vw;
+}
