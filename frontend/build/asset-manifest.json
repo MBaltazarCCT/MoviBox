@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/static/css/main.0a67cdc1.css",
+    "main.js": "/static/js/main.e4fda2d6.js",
+    "static/media/245_Izquierda.jpg": "/static/media/245_Izquierda.2c43fb0ebb1cd5539249.jpg",
+    "static/media/245_Derecha.jpg": "/static/media/245_Derecha.fc64eccdee82b33c8de5.jpg",
+    "static/media/245_Puerta.jpg": "/static/media/245_Puerta.a31626c86510684f2f99.jpg",
+    "static/media/245_Sello1.jpg": "/static/media/245_Sello1.6bd076494c047e32895c.jpg",
+    "static/media/245_Frente.jpg": "/static/media/245_Frente.83db5dfafd39f35dc701.jpg",
+    "static/media/logo-dark-512.png": "/static/media/logo-dark-512.5c089929c7a570933409.png",
+    "index.html": "/index.html",
+    "main.0a67cdc1.css.map": "/static/css/main.0a67cdc1.css.map",
+    "main.e4fda2d6.js.map": "/static/js/main.e4fda2d6.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0a67cdc1.css",
+    "static/js/main.e4fda2d6.js"
+  ]
+}
