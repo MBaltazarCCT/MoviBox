@@ -53,7 +53,7 @@ function App({ instance }) {
   return (
     <>
       <MsalProvider instance={instance}>
-    {process.env.REACT_APP_AUTH)
+    {process.env.REACT_APP_AUTH}
         <UnauthenticatedTemplate>
           <LogInForm setUserRol={setUserRol} />
         </UnauthenticatedTemplate>
