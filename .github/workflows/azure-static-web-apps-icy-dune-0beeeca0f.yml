@@ -13,6 +13,7 @@ jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
+    environment: production
     name: Build and Deploy Job
     steps:
       - uses: actions/checkout@v3
@@ -32,6 +33,10 @@ jobs:
           api_location: "" # Api source code path - optional
           output_location: "build" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+        env:
+          REACT_APP_CLIENTID: ${{ secrets.REACT_APP_CLIENTID }}
+          REACT_APP_AUTH: ${{ secrets.REACT_APP_AUTH }}
+          REACT_APP_API_TOKEN: ${{ secrets.REACT_APP_API_TOKEN }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -47,8 +52,3 @@ jobs:
 
 
 
-
-env:
-  REACT_APP_CLIENTID: ${{ secrets.REACT_APP_CLIENTID }}
-  REACT_APP_AUTH: ${{ secrets.REACT_APP_AUTH }}
-  REACT_APP_API_TOKEN: ${{ secrets.REACT_APP_API_TOKEN }}
