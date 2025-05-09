@@ -10,7 +10,7 @@ export const msalConfig = {
   auth: {
     clientId: process.env.REACT_APP_CLIENTID, // This is the ONLY mandatory field that you need to supply.
     authority: process.env.REACT_APP_AUTH, // Replace the placeholder with your tenant info
-    redirectUri: "http://localhost:3000", // Points to window.location.origin. You must register this URI on Microsoft Entra admin center/App Registration.
+    redirectUri: "https://icy-dune-0beeeca0f.6.azurestaticapps.net", // Points to window.location.origin. You must register this URI on Microsoft Entra admin center/App Registration.
     postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
     navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
   },
