@@ -1,5 +1,0 @@
-.boton_eliminar:hover {
-  color: rgb(199, 0, 0);           /* Cambia el color */
-  font-weight: bold;      /* Hace el ícono más grueso si es una fuente */
-  translate: 0 -2px; /* Desplaza el ícono hacia abajo */;
-}
